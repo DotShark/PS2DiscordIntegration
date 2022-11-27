@@ -43,16 +43,8 @@ async function generateItemInfosEmbed(itemID, thumbailURL, name) {
 		embed.addFields({name: "Liste des joueurs possédants cet item", value: ownersText});
 	} 
 
-	if (thumbailURL) {
-		embed.setThumbnail(thumbailURL);
-	} else {
-		try {
-			await thumbnailAPI.head(`/ps2item/${itemID}.jpg`);
-			embed.setThumbnail(`${process.env.API_URL}/ps2item/${itemID}.jpg`);
-		} catch {
-			console.log(`Failed to find ${item.name} thumbail`);
-		}
-	}
+	if (thumbailURL) embed.setThumbnail(thumbailURL);
+	embed.setTimestamp();
 
 	return [embed, item];
 }
