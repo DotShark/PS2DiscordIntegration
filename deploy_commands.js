@@ -19,6 +19,11 @@ const commands = [
 			option.setName("name")
 				.setDescription("Le nom de l'item (à utiliser en cas de problème avec les caractères spéciaux)")
 		) )
+		.toJSON(),
+
+	new SlashCommandBuilder()
+		.setName("refreshitems")
+		.setDescription("Actualise les infos de tous les items affichés sur Discord")
 		.toJSON()
 ];
 

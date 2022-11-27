@@ -68,6 +68,35 @@ const commands = {
 		await shop.addItemStatusMessage(statusMessage.id, itemID, item.name, validThumbail ? thumbail.url : "");
 		
 		return await interaction.editReply({content: `Vous venez de créer un embed qui affiche les stats de ${item.name}`, ephemeral: true});
+	},
+
+	async refreshitems(interaction) {
+		let itemsMessages;
+		try {
+			itemsMessages = await shop.getItemStatusMessages();
+			if (itemsMessages.length < 1) throw true;
+		} catch {
+			if (interaction) return await interaction.reply("Aucun item n'a été trouvé");
+		}
+
+		const channel = interaction.channel;
+
+		if (interaction) await interaction.reply(`Les statistiques de ${itemsMessages.length} items vont être actualisés`);
+		for (const i in itemsMessages) {
+			const itemMessage = itemsMessages[i];
+			try {
+				const message = await channel.messages.fetch(itemMessage.messageID);
+				await interaction.editReply(`Edition du message ${parseInt(i) + 1}/${itemsMessages.length}`);
+				const [embed, item] = await generateItemInfosEmbed(itemMessage.itemID, itemMessage.thumbailURL, itemMessage.itemName);
+				await message.edit({embeds: [embed]});
+			} catch(error) {
+				console.log(`Message n°${itemMessage.messageID} is not in this channel`);
+			}
+		}
+	},
+
+	async shutup(interaction) {
+		await interaction.reply("Fermez vos gueules les connards ! Vous êtes dans le salon réservé aux bots !\nLaissez mon développeur bosser tranquille !");
 	}
 };
 
