@@ -93,6 +93,8 @@ const commands = {
 				console.log(`Message n°${itemMessage.messageID} is not in this channel`);
 			}
 		}
+
+		return await interaction.editReply(`Les statisques des items affichés dans le channel n°${channel.id} ont étés édités`);
 	},
 
 	async shutup(interaction) {
