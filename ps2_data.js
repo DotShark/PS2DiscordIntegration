@@ -26,7 +26,7 @@ class PS2Data {
 		return items;
 	}
 
-	async getItemByName(name) {
+	async getItemByName(name) { // Needs fix (an item with special chars will not be find because of the difference between latin1 and utf8 encoding)
 		try {
 			const nameBuffer = Buffer.from(name);
 			const [itemsRows] = await this.pool.execute("SELECT * FROM ps2_itempersistence WHERE name = ?", []);
