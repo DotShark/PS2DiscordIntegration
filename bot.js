@@ -65,7 +65,7 @@ const commands = {
 		
 		const [embed, item] = await generateItemInfosEmbed(itemID, validThumbail && thumbail.url, name);
 		const statusMessage = await interaction.channel.send({embeds: [embed]});
-		await shop.addItemStatusMessage(statusMessage.id, itemID, item.name, validThumbail ? thumbail.url : "");
+		await shop.addItemStatusMessage(statusMessage.id, interaction.channel.id, itemID, item.name, validThumbail ? thumbail.url : "");
 		
 		return await interaction.editReply({content: `Vous venez de créer un embed qui affiche les stats de ${item.name}`, ephemeral: true});
 	},

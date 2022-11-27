@@ -153,7 +153,7 @@ class PS2Data {
 	}
 
 	async createItemStatusTable() {
-		await this.pool.execute("CREATE TABLE IF NOT EXISTS `ps2_itemstatus` ( `messageID` VARCHAR(255) NOT NULL , `itemID` INT NOT NULL, `itemName` VARCHAR(255) NOT NULL, `thumbailURL` VARCHAR(255) NOT NULL ) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_general_ci");
+		await this.pool.execute("CREATE TABLE IF NOT EXISTS `ps2_itemstatus` ( `messageID` VARCHAR(255) NOT NULL, `channelID` VARCHAR(255) NOT NULL, `itemID` INT NOT NULL, `itemName` VARCHAR(255) NOT NULL, `thumbailURL` VARCHAR(255) NOT NULL ) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE utf8mb4_general_ci");
 	}
 
 	async getItemStatusMessages() {
@@ -174,9 +174,9 @@ class PS2Data {
 		}
 	}
 
-	async addItemStatusMessage(messageID, itemID, itemName, thumbailURL) {
+	async addItemStatusMessage(messageID, channelID, itemID, itemName, thumbailURL) {
 		try {
-			const [statusMessages] = await this.pool.execute("INSERT INTO ps2_itemstatus VALUES (?, ?, ?, ?)", [messageID, itemID, itemName, thumbailURL]);
+			const [statusMessages] = await this.pool.execute("INSERT INTO ps2_itemstatus VALUES (?, ?, ?, ?, ?)", [messageID, channelID, itemID, itemName, thumbailURL]);
 			return statusMessages[0];
 		} catch {
 			console.log(`Failed to save message infos (id: ${messageID})`);
