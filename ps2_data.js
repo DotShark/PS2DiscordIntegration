@@ -1,7 +1,6 @@
 require("dotenv").config();
 const mysql = require("mysql2");
 const buffer = require("buffer");
-const { cp } = require("fs");
 
 class PS2Data {
 	constructor(mysqlLogin) {
