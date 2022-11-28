@@ -1,6 +1,6 @@
 // Modules
 require("dotenv").config();
-const {Client, Events, GatewayIntentBits, EmbedBuilder, MessageType} = require("discord.js");
+const {Client, Events, GatewayIntentBits, EmbedBuilder} = require("discord.js");
 const PS2Data = require("./ps2_data");
 const axios = require("axios");
 
@@ -55,7 +55,13 @@ const client = new Client({
 });
 
 const commands = {
+	canBeUsedBy(member) {
+		return member.permissions.serialize().Administrator;
+	},
+
 	async trackitem(interaction) {
+		if (!commands.canBeUsedBy(interaction.member)) return await interaction.reply({content: "Vous n'êtes pas autorisé à utiliser cette commande", ephemeral: true});
+
 		await interaction.deferReply({ephemeral: true});
 
 		const itemID = interaction.options.getInteger("item");
@@ -71,6 +77,8 @@ const commands = {
 	},
 
 	async refreshitems(interaction) {
+		if (!commands.canBeUsedBy(interaction.member)) return await interaction.reply({content: "Vous n'êtes pas autorisé à utiliser cette commande", ephemeral: true});
+
 		let itemsMessages;
 		try {
 			itemsMessages = await shop.getItemStatusMessages();
