@@ -94,7 +94,11 @@ const commands = {
 			try {
 				const channel = await client.channels.fetch(itemMessage.channelID);
 				const message = await channel.messages.fetch(itemMessage.messageID);
-				if (interaction) await interaction.editReply(`Edition du message ${parseInt(i) + 1}/${itemsMessages.length}`);
+				if (interaction) {
+					await interaction.editReply(`Edition du message ${parseInt(i) + 1}/${itemsMessages.length}`);
+				} else {
+					console.log(`Updated item stats: ${parseInt(i)}/${itemsMessages.length}`)
+				}
 				const [embed, item] = await generateItemInfosEmbed(itemMessage.itemID, itemMessage.thumbailURL, itemMessage.itemName);
 				await message.edit({embeds: [embed]});
 			} catch(error) {
@@ -132,13 +136,16 @@ client.login(config.DISCORD_TOKEN);
 // Item stats refresh loop
 setInterval(async () => {
 	const startedAt = performance.now();
+	console.log("Started to update items stats");
+
 	try {
-		const itemCount = await commands.refreshitems();
+		const itemsCount = await commands.refreshitems();
 		console.log(`Successfully edited the stats of ${itemsCount} items`);
-	} catch {
+	} catch (error) {
 		console.log("Failed to edit items stats");
+		if (error) console.log(error);
 	} finally {
 		const ellapsed = Math.round( performance.now() - startedAt );
 		console.log(`Took ${ellapsed / 1000}s`);
 	}
-}, 60000)
+}, 60000);
