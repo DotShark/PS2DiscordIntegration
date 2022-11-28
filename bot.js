@@ -79,12 +79,11 @@ const commands = {
 			if (interaction) return await interaction.reply("Aucun item n'a été trouvé");
 		}
 
-		const channel = interaction.channel;
-
 		if (interaction) await interaction.reply(`Les statistiques de ${itemsMessages.length} items vont être actualisés`);
 		for (const i in itemsMessages) {
 			const itemMessage = itemsMessages[i];
 			try {
+				const channel = await client.channels.fetch(itemMessage.channelID);
 				const message = await channel.messages.fetch(itemMessage.messageID);
 				await interaction.editReply(`Edition du message ${parseInt(i) + 1}/${itemsMessages.length}`);
 				const [embed, item] = await generateItemInfosEmbed(itemMessage.itemID, itemMessage.thumbailURL, itemMessage.itemName);
@@ -94,7 +93,7 @@ const commands = {
 			}
 		}
 
-		return await interaction.editReply(`Les statisques des items affichés dans le channel n°${channel.id} ont étés édités`);
+		return await interaction.editReply(`Les statisques des items ont étés édités`);
 	},
 
 	async shutup(interaction) {
