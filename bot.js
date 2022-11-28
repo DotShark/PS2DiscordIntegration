@@ -93,7 +93,7 @@ const commands = {
 			try {
 				const channel = await client.channels.fetch(itemMessage.channelID);
 				const message = await channel.messages.fetch(itemMessage.messageID);
-				await interaction.editReply(`Edition du message ${parseInt(i) + 1}/${itemsMessages.length}`);
+				if (interaction) await interaction.editReply(`Edition du message ${parseInt(i) + 1}/${itemsMessages.length}`);
 				const [embed, item] = await generateItemInfosEmbed(itemMessage.itemID, itemMessage.thumbailURL, itemMessage.itemName);
 				await message.edit({embeds: [embed]});
 			} catch(error) {
@@ -101,7 +101,7 @@ const commands = {
 			}
 		}
 
-		return await interaction.editReply(`Les statisques des items ont étés édités`);
+		if (interaction) return await interaction.editReply(`Les statisques des items ont étés édités`);
 	},
 
 	async shutup(interaction) {
@@ -127,3 +127,9 @@ client.on(Events.InteractionCreate, async interaction => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+
+// Refresh item stats each minute
+setInterval(() => {
+	commands.refreshitems()
+		.then()
+}, 60000)
