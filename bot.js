@@ -151,4 +151,4 @@ async function refreshLoop() {
 	}
 }
 
-refreshLoop();
+setTimeout(refreshLoop, 60000);
