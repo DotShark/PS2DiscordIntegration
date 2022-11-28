@@ -13,7 +13,6 @@ const commands = [
 		.addAttachmentOption( option => (
 			option.setName("thumbail")
 				.setDescription("La miniature de l'item dont vous voulez afficher les stats")
-				.setRequired(true)
 		) )
 		.addStringOption( option => (
 			option.setName("name")

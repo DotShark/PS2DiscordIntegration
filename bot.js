@@ -63,7 +63,7 @@ const commands = {
 		const name = interaction.options.getString("name");
 		const validThumbail = thumbail && (thumbail.contentType === "image/jpeg" || thumbail.contentType === "image/webp" || thumbail.contentType === "image/png");
 		
-		const [embed, item] = await generateItemInfosEmbed(itemID, validThumbail && thumbail.url, name);
+		const [embed, item] = await generateItemInfosEmbed(itemID, validThumbail ? thumbail.url : process.env.DEFAULT_ITEM_IMAGE, name);
 		const statusMessage = await interaction.channel.send({embeds: [embed]});
 		await shop.addItemStatusMessage(statusMessage.id, interaction.channel.id, itemID, item.name, validThumbail ? thumbail.url : "");
 		
