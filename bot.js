@@ -97,7 +97,7 @@ const commands = {
 				if (interaction) {
 					await interaction.editReply(`Edition du message ${parseInt(i) + 1}/${itemsMessages.length}`);
 				} else {
-					console.log(`Updated item stats: ${parseInt(i)}/${itemsMessages.length}`)
+					console.log(`Updated item stats: ${parseInt(i) + 1}/${itemsMessages.length}`)
 				}
 				const [embed, item] = await generateItemInfosEmbed(itemMessage.itemID, itemMessage.thumbailURL, itemMessage.itemName);
 				await message.edit({embeds: [embed]});
@@ -147,7 +147,7 @@ async function refreshLoop() {
 	} finally {
 		const ellapsed = Math.round( performance.now() - startedAt );
 		console.log(`Took ${ellapsed / 1000}s`);
-		refreshLoop();
+		setTimeout(refreshLoop, 60000);
 	}
 }
 
