@@ -129,9 +129,16 @@ client.on(Events.InteractionCreate, async interaction => {
 
 client.login(config.DISCORD_TOKEN);
 
-// Refresh item stats each minute
-setInterval(() => {
-	commands.refreshitems()
-		.then( itemsCount => console.log(`Successfully edited the stats of ${itemsCount} items`) )
-		.catch( reason => console.log("Failed to edit items stats") );
+// Item stats refresh loop
+setInterval(async () => {
+	const startedAt = performance.now();
+	try {
+		const itemCount = await commands.refreshitems();
+		console.log(`Successfully edited the stats of ${itemsCount} items`);
+	} catch {
+		console.log("Failed to edit items stats");
+	} finally {
+		const ellapsed = Math.round( performance.now() - startedAt );
+		console.log(`Took ${ellapsed}s`);
+	}
 }, 60000)
