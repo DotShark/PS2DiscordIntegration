@@ -139,6 +139,6 @@ setInterval(async () => {
 		console.log("Failed to edit items stats");
 	} finally {
 		const ellapsed = Math.round( performance.now() - startedAt );
-		console.log(`Took ${ellapsed}s`);
+		console.log(`Took ${ellapsed / 1000}s`);
 	}
 }, 60000)
