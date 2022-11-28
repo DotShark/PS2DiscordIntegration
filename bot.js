@@ -121,7 +121,7 @@ client.once(Events.ClientReady, c => {
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 
-	const commandFunc = commands[interaction.commandName];+9
+	const commandFunc = commands[interaction.commandName];
 	
 	try {
 		await commandFunc(interaction);
