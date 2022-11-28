@@ -134,7 +134,7 @@ client.on(Events.InteractionCreate, async interaction => {
 client.login(config.DISCORD_TOKEN);
 
 // Item stats refresh loop
-setInterval(async () => {
+async function refreshLoop() {
 	const startedAt = performance.now();
 	console.log("Started to update items stats");
 
@@ -147,5 +147,8 @@ setInterval(async () => {
 	} finally {
 		const ellapsed = Math.round( performance.now() - startedAt );
 		console.log(`Took ${ellapsed / 1000}s`);
+		refreshLoop();
 	}
-}, 60000);
+}
+
+refreshLoop();
