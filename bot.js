@@ -3,6 +3,7 @@ require("dotenv").config();
 const {Client, Events, GatewayIntentBits, EmbedBuilder} = require("discord.js");
 const PS2Data = require("./ps2_data");
 const axios = require("axios");
+const adminsSet = new Set( require("./admins.json") );
 
 // Thumbnail API
 const thumbnailAPI = axios.create({
@@ -56,7 +57,7 @@ const client = new Client({
 
 const commands = {
 	canBeUsedBy(member) {
-		return member.permissions.serialize().Administrator;
+		return adminsSet.has(member.id);
 	},
 
 	async trackitem(interaction) {
@@ -77,7 +78,7 @@ const commands = {
 	},
 
 	async refreshitems(interaction) {
-		if (!commands.canBeUsedBy(interaction.member)) return await interaction.reply({content: "Vous n'êtes pas autorisé à utiliser cette commande", ephemeral: true});
+		if (interaction && !commands.canBeUsedBy(interaction.member)) return await interaction.reply({content: "Vous n'êtes pas autorisé à utiliser cette commande", ephemeral: true});
 
 		let itemsMessages;
 		try {
@@ -101,11 +102,11 @@ const commands = {
 			}
 		}
 
-		if (interaction) return await interaction.editReply(`Les statisques des items ont étés édités`);
-	},
-
-	async shutup(interaction) {
-		await interaction.reply("Fermez vos gueules les connards ! Vous êtes dans le salon réservé aux bots !\nLaissez mon développeur bosser tranquille !");
+		if (interaction) {
+			return await interaction.editReply(`Les statisques des items ont étés édités`);
+		} else {
+			return itemsMessages.length;
+		}
 	}
 };
 
@@ -131,5 +132,6 @@ client.login(process.env.DISCORD_TOKEN);
 // Refresh item stats each minute
 setInterval(() => {
 	commands.refreshitems()
-		.then()
+		.then( itemsCount => console.log(`Successfully edited the stats of ${itemsCount} items`) )
+		.catch( reason => console.log("Failed to edit items stats") );
 }, 60000)
