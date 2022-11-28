@@ -2,10 +2,10 @@ const PS2Data = require("./ps2_data");
 
 (async () => {
 	const shop = new PS2Data({
-		host: process.env.MYSQL_HOST,
-		user: process.env.MYSQL_USER,
-		password: process.env.MYSQL_PASSWORD,
-		database: process.env.MYSQL_DATABASE
+		host: config.MYSQL_HOST,
+		user: config.MYSQL_USER,
+		password: config.MYSQL_PASSWORD,
+		database: config.MYSQL_DATABASE
 	});
 
 	console.log( await shop.getItemOwners(339) );

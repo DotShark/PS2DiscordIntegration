@@ -1,4 +1,4 @@
-require("dotenv").config();
+const config = require("./config");
 const {REST, Routes, SlashCommandBuilder} = require("discord.js");
 
 const commands = [
@@ -27,7 +27,7 @@ const commands = [
 ];
 
 // Construct and prepare an instance of the REST module
-const rest = new REST({version: "10"}).setToken(process.env.DISCORD_TOKEN);
+const rest = new REST({version: "10"}).setToken(config.DISCORD_TOKEN);
 
 // and deploy your commands!
 (async () => {
@@ -36,7 +36,7 @@ const rest = new REST({version: "10"}).setToken(process.env.DISCORD_TOKEN);
 
 		// The put method is used to fully refresh all commands in the guild with the current set
 		const data = await rest.put(
-			Routes.applicationCommands(process.env.DISCORD_CLIENT), {body: commands}
+			Routes.applicationCommands(config.DISCORD_CLIENT), {body: commands}
 		);
 
 		console.log(`Successfully reloaded ${data.length} application (/) commands.`);

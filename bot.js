@@ -1,5 +1,5 @@
 // Modules
-require("dotenv").config();
+const config = require("./config");
 const {Client, Events, GatewayIntentBits, EmbedBuilder} = require("discord.js");
 const PS2Data = require("./ps2_data");
 const axios = require("axios");
@@ -7,16 +7,16 @@ const adminsSet = new Set( require("./admins.json") );
 
 // Thumbnail API
 const thumbnailAPI = axios.create({
-	baseURL: process.env.API_URL,
-	// headers: {"Authorization": `Bearer ${process.env.API_TOKEN}`}
+	baseURL: config.API_URL,
+	// headers: {"Authorization": `Bearer ${config.API_TOKEN}`}
 });
 
 // PointShop2 data
 const shop = new PS2Data({
-	host: process.env.MYSQL_HOST,
-	user: process.env.MYSQL_USER,
-	password: process.env.MYSQL_PASSWORD,
-	database: process.env.MYSQL_DATABASE
+	host: config.MYSQL_HOST,
+	user: config.MYSQL_USER,
+	password: config.MYSQL_PASSWORD,
+	database: config.MYSQL_DATABASE
 });
 
 async function generateItemInfosEmbed(itemID, thumbailURL, name) {
@@ -70,7 +70,7 @@ const commands = {
 		const name = interaction.options.getString("name");
 		const validThumbail = thumbail && (thumbail.contentType === "image/jpeg" || thumbail.contentType === "image/webp" || thumbail.contentType === "image/png");
 		
-		const [embed, item] = await generateItemInfosEmbed(itemID, validThumbail ? thumbail.url : process.env.DEFAULT_ITEM_IMAGE, name);
+		const [embed, item] = await generateItemInfosEmbed(itemID, validThumbail ? thumbail.url : config.DEFAULT_ITEM_IMAGE, name);
 		const statusMessage = await interaction.channel.send({embeds: [embed]});
 		await shop.addItemStatusMessage(statusMessage.id, interaction.channel.id, itemID, item.name, validThumbail ? thumbail.url : "");
 		
@@ -127,7 +127,7 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
-client.login(process.env.DISCORD_TOKEN);
+client.login(config.DISCORD_TOKEN);
 
 // Refresh item stats each minute
 setInterval(() => {
