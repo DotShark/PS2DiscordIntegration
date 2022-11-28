@@ -44,7 +44,7 @@ async function generateItemInfosEmbed(itemID, thumbailURL, name) {
 		embed.addFields({name: "Liste des joueurs possédants cet item", value: ownersText});
 	} 
 
-	if (thumbailURL) embed.setThumbnail(thumbailURL);
+	embed.setThumbnail(thumbailURL || config.DEFAULT_ITEM_IMAGE);
 	embed.setTimestamp();
 
 	return [embed, item];
@@ -70,7 +70,7 @@ const commands = {
 		const name = interaction.options.getString("name");
 		const validThumbail = thumbail && (thumbail.contentType === "image/jpeg" || thumbail.contentType === "image/webp" || thumbail.contentType === "image/png");
 		
-		const [embed, item] = await generateItemInfosEmbed(itemID, validThumbail ? thumbail.url : config.DEFAULT_ITEM_IMAGE, name);
+		const [embed, item] = await generateItemInfosEmbed(itemID, validThumbail && thumbail.url, name);
 		const statusMessage = await interaction.channel.send({embeds: [embed]});
 		await shop.addItemStatusMessage(statusMessage.id, interaction.channel.id, itemID, item.name, validThumbail ? thumbail.url : "");
 		
