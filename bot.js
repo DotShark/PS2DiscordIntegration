@@ -90,6 +90,7 @@ const commands = {
 		}
 
 		if (interaction) await interaction.reply(`Les statistiques de ${itemsMessages.length} items vont être actualisés`);
+
 		for (const i in itemsMessages) {
 			const itemMessage = itemsMessages[i];
 			try {
@@ -103,8 +104,16 @@ const commands = {
 				const [embed, item] = await generateItemInfosEmbed(itemMessage.itemID, itemMessage.thumbailURL, itemMessage.itemName);
 				await message.edit({embeds: [embed]});
 			} catch (error) {
-				console.log(`Message n°${itemMessage.messageID} is not in this channel`);
-				console.log(error);
+				try {
+					const deleted = error.code === 10003 || error.code === 10008;
+					if (deleted) {
+						await shop.deleteItemStatusMessage(itemMessage.messageID);
+						console.log(`Message n°${itemMessage.messageID} doesn't exists anymore`);
+					} else throw true;
+				} catch {
+					console.log(`Something went wrong while trying to edit message n°${itemMessage.messageID}`);
+					console.log(error);
+				}
 			}
 		}
 

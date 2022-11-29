@@ -1,4 +1,3 @@
-const config = require("./config");
 const mysql = require("mysql2");
 const buffer = require("buffer");
 
