@@ -39,8 +39,9 @@ async function generateItemInfosEmbed(itemID, thumbailURL, name) {
 	if (item.owners) {
 		let ownersText = "";
 		item.owners.forEach(owner => {
-			ownersText += `- ${owner.name}\n`;
+			ownersText += `• ${owner.name}\n`;
 		});
+		if (ownersText.length === 0) ownersText = "Aucun joueur ne possède cet item pour le moment";
 		embed.addFields({name: "Liste des joueurs possédants cet item", value: ownersText});
 	} 
 
@@ -101,8 +102,9 @@ const commands = {
 				}
 				const [embed, item] = await generateItemInfosEmbed(itemMessage.itemID, itemMessage.thumbailURL, itemMessage.itemName);
 				await message.edit({embeds: [embed]});
-			} catch(error) {
+			} catch (error) {
 				console.log(`Message n°${itemMessage.messageID} is not in this channel`);
+				console.log(error);
 			}
 		}
 
