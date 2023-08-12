@@ -23,7 +23,16 @@ const commands = [
 	new SlashCommandBuilder()
 		.setName("refreshitems")
 		.setDescription("Actualise les infos de tous les items affichés sur Discord")
-		.toJSON()
+		.toJSON(),
+
+	new SlashCommandBuilder()
+		.setName("finditem")
+		.setDescription("Permet de trouver l'identifiant d'un item à partir de son nom")
+		.addStringOption( option => (
+			option.setName("name")
+				.setDescription("Le nom de l'item dont vous voulez connaitre l'identifiant")
+				.setRequired(true)
+		) )
 ];
 
 // Construct and prepare an instance of the REST module

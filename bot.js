@@ -16,7 +16,8 @@ const shop = new PS2Data({
 	host: config.MYSQL_HOST,
 	user: config.MYSQL_USER,
 	password: config.MYSQL_PASSWORD,
-	database: config.MYSQL_DATABASE
+	database: config.MYSQL_DATABASE,
+	charset: config.MYSQL_CHARSET ?? "utf8mb4"
 });
 
 async function generateItemInfosEmbed(itemID, thumbailURL, name) {
@@ -121,6 +122,20 @@ const commands = {
 			return await interaction.editReply(`Les statisques des items ont étés édités`);
 		} else {
 			return itemsMessages.length;
+		}
+	},
+
+	async finditem(interaction) {
+		if (!commands.canBeUsedBy(interaction.member)) return await interaction.reply({content: "Vous n'êtes pas autorisé à utiliser cette commande", ephemeral: true});
+
+		await interaction.deferReply({ephemeral: true});
+
+		const itemName = interaction.options.getString("name");
+		try {
+			const item = await shop.getItemByName(itemName);
+			return interaction.editReply({content: `Item trouvé :\n- Nom : ${itemName}\n- Identifiant : ${item.id}\n- Prix : ${item.price}`});
+		} catch {
+			return interaction.editReply({content: `[Erreur] Impossible de trouver un item du nom de ${itemName}`});
 		}
 	}
 };

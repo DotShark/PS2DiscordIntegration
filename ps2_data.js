@@ -1,5 +1,5 @@
 const mysql = require("mysql2");
-const buffer = require("buffer");
+require("./string_transcoder");
 
 class PS2Data {
 	constructor(mysqlLogin) {
@@ -19,18 +19,18 @@ class PS2Data {
 		}
 
 		itemsRows.forEach(item => {
-			const intemNameBuffer = Buffer.from(item.name);
-			items.push({id: item.id, price: item.price, name: buffer.transcode(intemNameBuffer, "utf8", "latin1").toString("utf8")})
+			items.push({id: item.id, price: item.price, name: item.name.transcodeFrom("latin1").to("utf8")});
 		})
 		return items;
 	}
 
-	async getItemByName(name) { // Needs fix (an item with special chars will not be find because of the difference between latin1 and utf8 encoding)
+	async getItemByName(name) {
 		try {
-			const nameBuffer = Buffer.from(name);
-			const [itemsRows] = await this.pool.execute("SELECT * FROM ps2_itempersistence WHERE name = ?", []);
+			const [itemsRows] = await this.pool.execute("SELECT * FROM ps2_itempersistence WHERE name = ?", [name.transcodeFrom("utf8").to("latin1")]);
 			const item = itemsRows[0];
-			return {id: item.id, price: item.price, name: item.name};
+			item.name = item.name.transcodeFrom("latin1").to("utf8");
+			item.description = item.description.transcodeFrom("latin1").to("utf8");
+			return item;
 		} catch {
 			console.log(`Failed to find ${name}`);
 		}
@@ -43,8 +43,8 @@ class PS2Data {
 		try {
 			const [itemsRows] = await this.pool.execute("SELECT * FROM ps2_itempersistence WHERE id = ?", [itemID]);
 			item = itemsRows[0];
-			const intemNameBuffer = Buffer.from(item.name);
-			item.name = buffer.transcode(intemNameBuffer, "utf8", "latin1").toString("utf8");
+			item.name = item.name.transcodeFrom("latin1").to("utf8");
+			item.description = item.description.transcodeFrom("latin1").to("utf8");
 		} catch {
 			console.log("Failed to find item");
 		}
@@ -58,8 +58,8 @@ class PS2Data {
 
 		try {
 			const [categoriesRows] = await this.pool.execute("SELECT * FROM ps2_categories WHERE id = ?", [categoryID]);
-			const catagoryLabelBuffer = Buffer.from(categoriesRows[0].label);
-			item.category = buffer.transcode(catagoryLabelBuffer, "utf8", "latin1").toString("utf8");
+			const category = categoriesRows[0];
+			item.category = category.label.transcodeFrom("latin1").to("utf8");
 		} catch {
 			console.log(`Failed to find ${item.name} category name.`);
 		}
@@ -122,8 +122,7 @@ class PS2Data {
 		try {
 			const [players] = await this.pool.execute("SELECT * FROM libk_player WHERE id = ?", [playerID]);
 			let player = players[0];
-			const nameBuffer = Buffer.from(player.name);
-			player.name = buffer.transcode(nameBuffer, "utf8", "latin1").toString("utf8");
+			player.name = player.name.transcodeFrom("latin1").to("utf8");
 			return player;
 		} catch {
 			console.log(`Failed to find SteamID from player ID: ${playerID}`);
