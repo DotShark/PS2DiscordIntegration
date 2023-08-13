@@ -2,14 +2,8 @@
 const config = require("./config");
 const {Client, Events, GatewayIntentBits, EmbedBuilder} = require("discord.js");
 const PS2Data = require("./ps2_data");
-const axios = require("axios");
+const cloudinary = require("cloudinary").v2;
 const adminsSet = new Set( require("./admins.json") );
-
-// Thumbnail API
-const thumbnailAPI = axios.create({
-	baseURL: config.API_URL,
-	// headers: {"Authorization": `Bearer ${config.API_TOKEN}`}
-});
 
 // PointShop2 data
 const shop = new PS2Data({
@@ -18,6 +12,13 @@ const shop = new PS2Data({
 	password: config.MYSQL_PASSWORD,
 	database: config.MYSQL_DATABASE,
 	charset: config.MYSQL_CHARSET ?? "utf8mb4"
+});
+
+// Thumbnail API
+cloudinary.config({
+	cloud_name: config.CLOUD_NAME,
+	api_key: config.API_KEY,
+	api_secret: config.API_SECRET
 });
 
 async function generateItemInfosEmbed(itemID, thumbailURL, name) {
@@ -72,9 +73,19 @@ const commands = {
 		const name = interaction.options.getString("name");
 		const validThumbail = thumbail && (thumbail.contentType === "image/jpeg" || thumbail.contentType === "image/webp" || thumbail.contentType === "image/png");
 		
-		const [embed, item] = await generateItemInfosEmbed(itemID, validThumbail && thumbail.url, name);
+		let thumbailUrl = validThumbail && thumbail.url;
+		if (validThumbail) {
+			try {
+				const result = await cloudinary.uploader.upload(thumbailUrl);
+				thumbailUrl = result.secure_url;
+			} catch(error) {
+				console.log(error);
+			}
+		}
+
+		const [embed, item] = await generateItemInfosEmbed(itemID, validThumbail && thumbailUrl, name);
 		const statusMessage = await interaction.channel.send({embeds: [embed]});
-		await shop.addItemStatusMessage(statusMessage.id, interaction.channel.id, itemID, item.name, validThumbail ? thumbail.url : "");
+		await shop.addItemStatusMessage(statusMessage.id, interaction.channel.id, itemID, item.name, validThumbail ? thumbailUrl : "");
 		
 		return await interaction.editReply({content: `Vous venez de créer un embed qui affiche les stats de ${item.name}`, ephemeral: true});
 	},
