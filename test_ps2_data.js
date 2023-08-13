@@ -14,8 +14,8 @@ const PS2Data = require("./ps2_data");
 
 	const items = await shop.getItems();
 	items.forEach(item => console.log(`${item.id},${item.name},${item.price}`));
-	console.log( await shop.getItemByName("Élan") );
-	// console.log( await shop.getItemInfos(393) );
+	// console.log( await shop.getItemByName("Golden Magnum") );
+	console.log( await shop.getItemInfos(318) );
 	/*
 	console.log( await shop.getItemInfos(213) );
 	console.log( await shop.getPlayerWallet("STEAM_0:1:73530340") );

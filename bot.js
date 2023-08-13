@@ -97,12 +97,9 @@ const commands = {
 			try {
 				const channel = await client.channels.fetch(itemMessage.channelID);
 				const message = await channel.messages.fetch(itemMessage.messageID);
-				if (interaction) {
-					await interaction.editReply(`Edition du message ${parseInt(i) + 1}/${itemsMessages.length}`);
-				} else {
-					console.log(`Updated item stats: ${parseInt(i) + 1}/${itemsMessages.length}`)
-				}
+				if (interaction) await interaction.editReply(`Edition du message ${parseInt(i) + 1}/${itemsMessages.length}`);
 				const [embed, item] = await generateItemInfosEmbed(itemMessage.itemID, itemMessage.thumbailURL, itemMessage.itemName);
+				if (!interaction) console.log(`Updated item stats: ${parseInt(i) + 1}/${itemsMessages.length}`);
 				await message.edit({embeds: [embed]});
 			} catch (error) {
 				try {

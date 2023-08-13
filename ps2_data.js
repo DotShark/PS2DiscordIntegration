@@ -39,6 +39,7 @@ class PS2Data {
 	async getItemInfos(itemID) {
 		let item;
 		let categoryID;
+		const startedAt = performance.now();
 
 		try {
 			const [itemsRows] = await this.pool.execute("SELECT * FROM ps2_itempersistence WHERE id = ?", [itemID]);
@@ -72,18 +73,19 @@ class PS2Data {
 			console.log(error);
 		}
 
-		if (item.occurences <= 50) {
+		if (item.occurences <= 100) {
 			try {
 				item.owners = await this.getItemOwners(itemID);
 			} catch {}
 		}
 
+		const ellapsed = Math.round(performance.now() - startedAt);
+		// console.log(`Took ${ellapsed}ms to get infos of ${item.name}`);
 		return item;
 	}
 
 	async getItemOwners(itemClassID) {
 		let items = [];
-		let owners = [];
 		
 		try {
 			[items] = await this.pool.execute("SELECT * FROM kinv_items WHERE itemclass = ?", [`KInventory.Items.${itemClassID}`]);
@@ -93,39 +95,80 @@ class PS2Data {
 
 		if (!items) return;
 
+		let searchItemsInInventories = "";
+		let searchItemsInSlots = "";
 		for (const item of items) {
+			if (item.inventory_id) {
+				searchItemsInInventories += `${item.inventory_id}, `;
+			} else {
+				searchItemsInSlots += `${item.id}, `;
+			}
+		}
+		searchItemsInInventories = searchItemsInInventories.substring(0, searchItemsInInventories.length - 2);
+		searchItemsInSlots = searchItemsInSlots.substring(0, searchItemsInSlots.length - 2);
+
+		let playersIds = [];
+
+		if (searchItemsInInventories !== "") {
 			try {
-				const owner = await this.getItemOwner(item);
-				owners.push(owner);
-			} catch {}
+				const [inventories] = await this.pool.execute(`SELECT ownerId FROM inventories WHERE id IN(${searchItemsInInventories})`);
+				for (const inventory of inventories) {
+					playersIds.push(inventory.ownerId);
+				}
+			} catch(error) {
+				console.log(error);
+			}
 		}
 
-		return owners;
+		if (searchItemsInSlots !== "") {
+			try {
+				const [slots] = await this.pool.execute(`SELECT ownerId FROM ps2_equipmentslot WHERE itemId IN(${searchItemsInSlots})`);
+				for (const slot of slots) {
+					playersIds.push(slot.ownerId);
+				}
+			} catch(error) {
+				console.log(error);
+			}
+		}
+
+		let searchPlayers = "";
+		for (const playerId of playersIds) {
+			searchPlayers += `${playerId}, `;
+		}
+		searchPlayers = searchPlayers.substring(0, searchPlayers.length - 2);
+
+		try {
+			const [players] = await this.pool.execute(`SELECT * FROM libk_player WHERE id IN(${searchPlayers})`);
+			return players;
+		} catch(error) {
+			console.log(error);
+			return [];
+		}
 	}
 
 	async getItemOwner(item) {
-		let playerID;
+		let playerId;
 
 		try {
 			if (item.inventory_id) {
 				const [inventories] = await this.pool.execute("SELECT ownerId FROM inventories WHERE id = ?", [item.inventory_id]);
-				playerID = inventories[0].ownerId;
+				playerId = inventories[0].ownerId;
 			} else {
 				const [slots] = await this.pool.execute("SELECT ownerId FROM ps2_equipmentslot WHERE itemId = ?", [item.id]);
-				playerID = slots[0].ownerId;
+				playerId = slots[0].ownerId;
 			}
 		} catch(error) {
 			console.log(error);
 		}
 
-		if (!playerID) return;
+		if (!playerId) return;
 		try {
-			const [players] = await this.pool.execute("SELECT * FROM libk_player WHERE id = ?", [playerID]);
+			const [players] = await this.pool.execute("SELECT * FROM libk_player WHERE id = ?", [playerId]);
 			let player = players[0];
 			player.name = player.name.transcodeFrom("latin1").to("utf8");
 			return player;
 		} catch {
-			console.log(`Failed to find SteamID from player ID: ${playerID}`);
+			console.log(`Failed to find SteamID from player ID: ${playerId}`);
 		}
 	}
 
