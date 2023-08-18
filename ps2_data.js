@@ -107,13 +107,16 @@ class PS2Data {
 		searchItemsInInventories = searchItemsInInventories.substring(0, searchItemsInInventories.length - 2);
 		searchItemsInSlots = searchItemsInSlots.substring(0, searchItemsInSlots.length - 2);
 
-		let playersIds = [];
+		let ownersIds = [];
 
 		if (searchItemsInInventories !== "") {
 			try {
-				const [inventories] = await this.pool.execute(`SELECT ownerId FROM inventories WHERE id IN(${searchItemsInInventories})`);
+				const [inventories] = await this.pool.execute(`SELECT id, ownerId FROM inventories WHERE id IN(${searchItemsInInventories})`);
 				for (const inventory of inventories) {
-					playersIds.push(inventory.ownerId);
+					ownersIds.push(inventory.ownerId);
+					for (const item of items) {
+						if (item.inventory_id === inventory.id) item.ownerId = inventory.ownerId;
+					}
 				}
 			} catch(error) {
 				console.log(error);
@@ -122,9 +125,12 @@ class PS2Data {
 
 		if (searchItemsInSlots !== "") {
 			try {
-				const [slots] = await this.pool.execute(`SELECT ownerId FROM ps2_equipmentslot WHERE itemId IN(${searchItemsInSlots})`);
+				const [slots] = await this.pool.execute(`SELECT itemId, ownerId FROM ps2_equipmentslot WHERE itemId IN(${searchItemsInSlots})`);
 				for (const slot of slots) {
-					playersIds.push(slot.ownerId);
+					ownersIds.push(slot.ownerId);
+					for (const item of items) {
+						if (item.id === slot.itemId) item.ownerId = slot.ownerId;
+					}
 				}
 			} catch(error) {
 				console.log(error);
@@ -132,14 +138,19 @@ class PS2Data {
 		}
 
 		let searchPlayers = "";
-		for (const playerId of playersIds) {
-			searchPlayers += `${playerId}, `;
+		for (const ownerId of ownersIds) {
+			searchPlayers += `${ownerId}, `;
 		}
 		searchPlayers = searchPlayers.substring(0, searchPlayers.length - 2);
 
 		try {
-			const [players] = await this.pool.execute(`SELECT * FROM libk_player WHERE id IN(${searchPlayers})`);
-			return players;
+			const [owners] = await this.pool.execute(`SELECT * FROM libk_player WHERE id IN(${searchPlayers})`);
+			let sortedOwners = [];
+			for (const item of items) {
+				const owner = owners.find(owner => owner.id === item.ownerId);
+				sortedOwners.push(owner);
+			}
+			return sortedOwners;
 		} catch(error) {
 			console.log(error);
 			return [];
@@ -187,7 +198,7 @@ class PS2Data {
 		try {
 			const [walletRows] = await this.pool.execute("SELECT * FROM ps2_wallet WHERE ownerId = ?", [walletID]);
 			const wallet = walletRows[0];
-			return {name: name, points: wallet.points, premiumPoints: wallet.premiumPoints};
+			return { name: name, points: wallet.points, premiumPoints: wallet.premiumPoints };
 		} catch {
 			console.log(`Failed to find ${name} inventory`);
 		}
